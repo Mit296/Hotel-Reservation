@@ -1,0 +1,111 @@
+package application;
+
+import domain.*;
+import java.util.HashMap;
+import java.util.Map;
+
+// <<control>> ReservationControl
+class ReservationControl {
+    private Hotel hotel;
+    private Map<Integer, Reservation> reservations = new HashMap<>();
+    private int currentResNum = 1000;
+
+    public ReservationControl(Hotel hotel) {
+        this.hotel = hotel;
+    }
+
+    public Hotel getHotel() { return this.hotel; }
+
+    public void confirmPossibleReservation() {
+        System.out.println("[ReservationControl] 予約可能か確認します。");
+    }
+
+    public void confirmVacancy() {
+        System.out.println("[ReservationControl] 空き照会中... 現在の空き室数: " + hotel.getVacancy());
+    }
+
+    public void confirmReservation() {
+        System.out.println("[ReservationControl] 予約内容の最終確認を行います。");
+    }
+
+    public void reserveRoom() {
+        System.out.println("[ReservationControl] 部屋を確保します。");
+        hotel.decrementVacancy();
+    }
+
+    public void createReservation() {
+        System.out.println("[ReservationControl] 予約データを作成します。");
+    }
+
+    public int getReservationNumber() {
+        this.currentResNum++;
+        return this.currentResNum;
+    }
+    
+    public void addReservation(Reservation res) {
+        this.reservations.put(res.getReservationNumber(), res);
+    }
+    
+    public Reservation findReservation(int resNum) {
+        return this.reservations.get(resNum);
+    }
+}
+
+// <<control>> CheckinControl
+class CheckinControl {
+    private ReservationControl resControl;
+
+    public CheckinControl(ReservationControl resControl) {
+        this.resControl = resControl;
+    }
+
+    public void checkin() {
+        System.out.println("[CheckinControl] チェックイン処理を開始します。");
+    }
+
+    public int getreservationNumber() {
+        System.out.println("[CheckinControl] 予約番号を取得します。");
+        return 1001; // シミュレーション用の固定値
+    }
+
+    public int getcheckinDate() { return 20260709; }
+    public int getcheckoutDate() { return 20260710; }
+
+    public int getRoomNumber() {
+        System.out.println("[CheckinControl] 空き部屋の番号を割り当てます。");
+        for (Roon room : resControl.getHotel().getRoons().values()) {
+            if (!room.isOccupied()) {
+                return room.getRoomNumber();
+            }
+        }
+        return -1;
+    }
+
+    public void processcheckin() {
+        System.out.println("[CheckinControl] チェックインを確定し、部屋を使用中にします。");
+    }
+}
+
+// <<control>> CheckoutControl
+class CheckoutControl {
+    private ReservationControl resControl;
+
+    public CheckoutControl(ReservationControl resControl) {
+        this.resControl = resControl;
+    }
+
+    public void checkout() {
+        System.out.println("[CheckoutControl] チェックアウト処理を開始します。");
+    }
+
+    public void getRoomNumberAndPrice() {
+        System.out.println("[CheckoutControl] 部屋番号と料金の対応を取得します。");
+    }
+
+    public int getCheckoutDate() { return 20260710; }
+    public int getPrice() { return 12000; }
+
+    public void clearRoom() {
+        System.out.println("[CheckoutControl] 部屋の利用ステータスをクリア（空室化）します。");
+    }
+}
