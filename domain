@@ -1,0 +1,71 @@
+package domain;
+
+import java.util.HashMap;
+import java.util.Map;
+
+// <<entity>> Roon (図の表記通り)
+class Roon {
+    private int roomNumber;
+    private int price;
+    private boolean isOccupied = false; // チェックイン状態管理用
+
+    public Roon(int roomNumber, int price) {
+        this.roomNumber = roomNumber;
+        this.price = price;
+    }
+
+    public int getRoomNumber() { return this.roomNumber; }
+    public int getPrice() { return this.price; }
+    public boolean isOccupied() { return this.isOccupied; }
+    public void setOccupied(boolean occupied) { this.isOccupied = occupied; }
+}
+
+// <<entity>> Hotel
+class Hotel {
+    private int vacancy;
+    // Hotel 1 -> * Roon の集約関係をMapで表現
+    private Map<Integer, Roon> roons = new HashMap<>();
+
+    public Hotel(int vacancy) {
+        this.vacancy = vacancy;
+    }
+
+    public int getVacancy() {
+        return this.vacancy;
+    }
+
+    public void decrementVacancy() {
+        if (this.vacancy > 0) {
+            this.vacancy--;
+        }
+    }
+
+    public void addRoom(Roon room) {
+        this.roons.put(room.getRoomNumber(), room);
+    }
+
+    public Map<Integer, Roon> getRoons() {
+        return this.roons;
+    }
+}
+
+// <<entity>> Reservation
+class Reservation {
+    private int reservationNumber;
+    private int checkinDate;
+    private int checkoutDate;
+    private Roon assignedRoom;
+
+    public Reservation(int reservationNumber, int checkinDate) {
+        this.reservationNumber = reservationNumber;
+        this.checkinDate = checkinDate;
+    }
+
+    public int getReservationNumber() { return this.reservationNumber; }
+    public int getCheckinDate() { return this.checkinDate; }
+    public int getCheckoutDate() { return this.checkoutDate; }
+    
+    public void setCheckoutDate(int checkoutDate) { this.checkoutDate = checkoutDate; }
+    public void setAssignedRoom(Roon room) { this.assignedRoom = room; }
+    public Roon getAssignedRoom() { return this.assignedRoom; }
+}
