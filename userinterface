@@ -1,0 +1,123 @@
+package ui;
+
+import application.*;
+import domain.*;
+
+// <<boundary>> ReservationUI
+class ReservationUI {
+    private ReservationControl control;
+
+    public ReservationUI(ReservationControl control) {
+        this.control = control;
+    }
+
+    public void inputstayDate() {
+        System.out.println("\n--- UI: 宿泊日・人数の入力 ---");
+        control.confirmVacancy();
+    }
+
+    // 図の通りのスペルミス(comfirm, Reservatin)を再現
+    public void comfirmReservatin() {
+        System.out.println("\n--- UI: 予約確定ボタンの押下 ---");
+        control.confirmPossibleReservation();
+        control.reserveRoom();
+        control.createReservation();
+        int resNum = control.getReservationNumber();
+        showReservationNumber(resNum);
+    }
+
+    public void selectRoomAndInputGuestInfo() {
+        System.out.println("\n--- UI: 部屋の選択と宿泊者情報の入力 ---");
+        control.confirmReservation();
+    }
+
+    public void showDateAndPrice() {
+        System.out.println("[UI表示] 予約日時と料金を表示しました。");
+    }
+
+    public void showReservationNumber(int num) {
+        System.out.println("[UI表示] 予約が完了しました。予約番号: " + num);
+    }
+
+    public void showWarning() {
+        System.out.println("[UI表示] 警告: 条件に合う部屋がありません。");
+    }
+}
+
+// <<boundary>> RoomManagementUI
+class RoomManagementUI {
+    private CheckinControl checkinCtrl;
+    private CheckoutControl checkoutCtrl;
+
+    public RoomManagementUI(CheckinControl checkinCtrl, CheckoutControl checkoutCtrl) {
+        this.checkinCtrl = checkinCtrl;
+        this.checkoutCtrl = checkoutCtrl;
+    }
+
+    // --- チェックイン ---
+    public void inputReservationNumber() {
+        System.out.println("\n--- UI: 管理者が予約番号を入力 ---");
+        checkinCtrl.checkin();
+        int roomNum = checkinCtrl.getRoomNumber();
+        showRoomNumberAndDate(roomNum);
+    }
+
+    public void showRoomNumberAndDate(int roomNumber) {
+        System.out.println("[UI表示] 部屋番号: " + roomNumber + " およびチェックイン日を表示。");
+        checkinCtrl.processcheckin();
+    }
+
+    // --- チェックアウト ---
+    public void selectCheckinCheckout() {
+        System.out.println("\n--- UI: チェックアウト処理の選択 ---");
+        checkoutCtrl.checkout();
+        checkoutCtrl.getRoomNumberAndPrice();
+        showCheckoutDataAndPrice();
+    }
+
+    public void inputRoomNumber() {
+        System.out.println("--- UI: 部屋番号の入力 ---");
+        checkoutCtrl.clearRoom();
+    }
+
+    public void showCheckoutDataAndPrice() {
+        int price = checkoutCtrl.getPrice();
+        System.out.println("[UI表示] 精算料金: " + price + "円 を表示。");
+    }
+
+    public void showWarning() {
+        System.out.println("[UI表示] 警告: 入力された情報に誤りがあります。");
+    }
+}
+
+// Mainクラス（全体のシミュレーション）
+public class Main {
+    public static void main(String[] args) {
+        // 1. ドメイン(Entity)の構築
+        Hotel myHotel = new Hotel(10);
+        myHotel.addRoom(new Roon(101, 12000));
+        myHotel.addRoom(new Roon(102, 15000));
+
+        // 2. アプリケーション(Control)の初期化
+        ReservationControl resControl = new ReservationControl(myHotel);
+        CheckinControl checkinControl = new CheckinControl(resControl);
+        CheckoutControl checkoutControl = new CheckoutControl(resControl);
+
+        // 3. ユーザインターフェース(Boundary)の初期化
+        ReservationUI reservationUI = new ReservationUI(resControl);
+        RoomManagementUI roomManagementUI = new RoomManagementUI(checkinControl, checkoutControl);
+
+        // --- シミュレーション実行 ---
+        // 【ユースケース：ホテルを予約する】
+        reservationUI.inputstayDate();
+        reservationUI.selectRoomAndInputGuestInfo();
+        reservationUI.comfirmReservatin();
+
+        // 【ユースケース：チェックインする】
+        roomManagementUI.inputReservationNumber();
+
+        // 【ユースケース：チェックアウトする】
+        roomManagementUI.selectCheckinCheckout();
+        roomManagementUI.inputRoomNumber();
+    }
+}
